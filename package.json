@@ -64,6 +64,7 @@
     "@dcloudio/uni-cli-shared": "^2.0.0-28320200727001",
     "@dcloudio/uni-migration": "^2.0.0-28320200727001",
     "@dcloudio/uni-template-compiler": "^2.0.0-28320200727001",
+    "@dcloudio/uni-ui": "^1.2.4",
     "@dcloudio/vue-cli-plugin-hbuilderx": "^2.0.0-28320200727001",
     "@dcloudio/vue-cli-plugin-uni": "^2.0.0-28320200727001",
     "@dcloudio/vue-cli-plugin-uni-optimize": "^2.0.0-28320200727001",
@@ -76,7 +77,9 @@
     "jest": "^25.4.0",
     "mini-types": "*",
     "miniprogram-api-typings": "*",
+    "node-sass": "^4.14.1",
     "postcss-comment": "^2.0.0",
+    "sass-loader": "^9.0.2",
     "vue-template-compiler": "^2.6.11"
   },
   "browserslist": [
