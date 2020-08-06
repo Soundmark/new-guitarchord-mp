@@ -1,19 +1,18 @@
-# new-guitar
+# 吉他谱搜索小程序（重写）
 
-## Project setup
-```
-npm install
-```
+由于之前的那个小程序用的是mpvue写的，性能不太好，而且bug也多，打算用uniapp重新写一遍，优化性能，同时也考虑增加一些功能。
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+## TODO
++ 重写吉他谱搜索功能
+   + ~~搜索功能~~
+   + 增加搜索历史 
++ 重写首页
+   + 增加热门推荐  
++ 重写吉他谱查看页面
++ 增加工具页
+   + 重写节拍器，放到工具页 
+   + 增加和旋图书馆功能
++ 增加个人中心
+   + 增加收藏吉他谱功能
+   + 增加查看浏览历史功能
 
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).

@@ -1,25 +1,8 @@
 <template>
 	<view class="content">
 		<view class="header">
-			<uni-nav-bar class="search">
-				<view>
-					<uni-search-bar placeholder="搜索歌手或歌曲名" radius="50"
-					cancelButton="auto" @confirm="search" v-model="searchVal"
-					@cancel="cancelSearch"></uni-search-bar>
-				</view>
-				<!-- <view slot="left" @click="cancelSearch">取消</view> -->
-				<view slot="right" class="right">
-					<button type="default" @click="search">搜索</button>
-				</view>
-			</uni-nav-bar>
 		</view>
-		<view class="body" v-if="showList">
-			<uni-list>
-				<uni-list-item v-for="(item,index) in list" :key="index" :title="item.				song" :note="'歌手:'+item.artist+'   热度:'+item.hot" 
-				 ellipsis="0" link :to="'/pages/detail/index?link='+item.link"></uni-list-item>
-			</uni-list>
-		</view>
-		<view class="body" v-else>
+		<view class="body">
 			<text>11111</text>
 		</view>
 	</view>
