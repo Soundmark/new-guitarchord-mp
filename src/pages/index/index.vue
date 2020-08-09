@@ -20,7 +20,12 @@
 			</uni-list>
 		</view>
 		<view class="body" v-else>
-			<text>11111</text>
+			<!-- <uni-segmented-control :current="current" :value="items" @clickItem="onClickItem"></uni-segmented-control> -->
+			<uni-card class="en" title="热门推荐">
+				<uni-list>
+					<uni-list-item v-for="(item,index) in recomendList" :key="index" :title="item.song_name" :note="'歌手:'+item.artist_name" :to="'/pages/detail/index?link='+item.tab_url"></uni-list-item>
+				</uni-list>
+			</uni-card>
 		</view>
 	</view>
 </template>
@@ -32,13 +37,21 @@
 				showList: false,
 				searchVal: '',
 				currentPage: 1,
-				list: []
+				list: [],
+				recomendList: []
 			}
 		},
 		components: {
 		},
 		onLoad() {
-
+			const db = wx.cloud.database()
+			const recomend = db.collection('recomend').doc('7fbac6cf5f2d75c30002643256074b6d')
+			recomend.get().then(res=>{
+				this.recomendList = res.data.contentList.splice(0,10)
+				wx.cloud.callFunction({
+					name: 'getRecomend'
+				}).then(res => {})
+			})
 		},
 		methods: {
 			search(){
