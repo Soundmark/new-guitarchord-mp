@@ -1,14 +1,22 @@
 <template>
-	<view class="content">
-		<view class="header">
-		</view>
+	<view class="tool">
+		<!-- <view class="header">
+		</view> -->
 		<view class="body">
-			<text>11111</text>
+			<uni-grid :column="2">
+				<uni-grid-item>
+					<text>节拍器</text>
+				</uni-grid-item>
+			</uni-grid>
+		</view>
+		<view class="popup">
+			<metronome></metronome>
 		</view>
 	</view>
 </template>
 
 <script>
+	import metronome from '../../components/metronome/index.vue'
 	export default {
 		data() {
 			return {
@@ -19,6 +27,7 @@
 			}
 		},
 		components: {
+			metronome
 		},
 		onLoad() {
 
@@ -65,25 +74,11 @@
 </script>
 
 <style lang="scss">
-.uni-searchbar{
-	width: 500rpx;
-}
-.right{
-	button{
-		height: 72rpx;
-		font-size: 25rpx;
-		line-height: 72rpx;
-		padding: 0;
-		width: 90rpx;
-	}
-}
-.body{
-	width: 100vw;
-	min-height: calc(100vh - 100rpx);
-}
-.uni-searchbar__cancel{
+.popup{
 	position: absolute;
-	left: -100rpx;
-	padding-right: 20rpx;
+	left: 50%;
+	height: 50%;
+	transform: translate(-50%,-50%);
+	z-index: 10;
 }
 </style>
