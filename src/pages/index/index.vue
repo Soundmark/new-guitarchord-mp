@@ -46,12 +46,33 @@
 		onLoad() {
 			const db = wx.cloud.database()
 			const recomend = db.collection('recomend').doc('7fbac6cf5f2d75c30002643256074b6d')
+			const that = this
 			recomend.get().then(res=>{
 				this.recomendList = res.data.contentList.splice(0,10)
 				wx.cloud.callFunction({
 					name: 'getRecomend'
 				}).then(res => {})
 			})
+			//获取用户信息
+			uni.getUserInfo({
+				provider: 'weixin',
+				success:function(e){
+					getApp().globalData.userInfo = e.userInfo
+				}
+			})
+			if(!getApp().globalData.openId){
+				wx.cloud.callFunction({
+					name: 'getOpenid',
+				}).then(res=>{
+					// console.log(res.result.openId)
+					getApp().globalData.openId = res.result.openId
+					that.getUserData(res.result.openId)
+				}).catch(err=>{
+					console.log(err)
+				})
+			}else{
+				that.getUserData(getApp().globalData.openId)
+			}
 		},
 		methods: {
 			search(){
@@ -89,6 +110,28 @@
 			cancelSearch(){
 				this.showList = false
 				this.list = []
+			},
+			getUserData(openId){
+				const db = wx.cloud.database()
+				db.collection('userData').where({
+					_openid: openId
+				}).get({
+					success: function(res){
+						if(!res.data[0]){
+							getApp().globalData.favor = []
+							getApp().globalData.history = []
+							db.collection('userData').add({
+								data: {
+									favor: [],
+									history: []
+								}
+							})
+						}else{
+							getApp().globalData.favor = res.data[0].favor
+							getApp().globalData.history = res.data[0].history
+						}
+					}
+				})
 			}
 		}
 	}

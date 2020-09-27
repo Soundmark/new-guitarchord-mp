@@ -1,9 +1,20 @@
 <template>
 	<view class="content">
 		<view class="header">
+			<view v-if="userInfo">
+				<uni-list>
+					<uni-list-chat :title="userInfo.nickName" :avatar="userInfo.avatarUrl"></uni-list-chat>
+				</uni-list>
+			</view>
+			<view v-else>
+				<button open-type="getUserInfo" @getuserinfo="onGotUserInfo">登录</button>
+			</view>
 		</view>
 		<view class="body">
-			<text>11111</text>
+			<uni-list>
+				<uni-list-item title="我的收藏" to="/pages/list/index?type=favor"></uni-list-item>
+				<uni-list-item title="浏览历史" to="/pages/list/index?type=history"></uni-list-item>
+			</uni-list>
 		</view>
 	</view>
 </template>
@@ -12,54 +23,31 @@
 	export default {
 		data() {
 			return {
-				showList: false,
-				searchVal: '',
-				currentPage: 1,
-				list: []
+				userInfo: null,
+				openId: ''
 			}
 		},
 		components: {
 		},
 		onLoad() {
-
+			this.userInfo = getApp().globalData.userInfo
+			this.openId = getApp().globalData.openId
 		},
 		methods: {
-			search(){
-				this.showList = true
-				wx.showLoading({
-					title: '加载中'
-				})
-				wx.cloud.callFunction({
-					name: 'getList',
-					data: {
-					  search: this.searchVal.value,
-					  currentPage: this.currentPage
-					}
-				}).then(res => {
-					let dataList = res.result.results.filter(item => item.artist_id)
-					// console.log(dataList)
-					dataList.forEach(item => {
-					  let data = {}
-					  data.song = item.song_name
-					  data.artist = item.artist_name
-					  data.link = item.tab_url
-					  data.hot = item.votes
-					  this.list.push(data)
+			onGotUserInfo(e){
+				// console.log(e)
+				getApp().globalData.userInfo = e.detail.userInfo
+				this.userInfo = e.detail.userInfo
+				if(!getApp().globalData.openId){
+					wx.cloud.callFunction({
+						name: 'getOpenid',
+					}).then(res=>{
+						getApp().globalData.openId = res.result.openId
+					}).catch(err=>{
+						console.log(err)
 					})
-					wx.hideLoading()
-				}).catch(err => {
-					wx.hideLoading()
-					wx.showToast({
-					  title: '服务器出错，请重试!',
-					  icon: 'none',
-					  duration: 1500
-					})
-				})
+				}
 			},
-			cancelSearch(){
-				this.showList = false
-				this.list = []
-			}
 		}
 	}
 </script>

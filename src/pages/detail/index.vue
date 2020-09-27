@@ -7,7 +7,7 @@
 				<text class="capo" v-if="capo">Capo：{{capo}}</text>
 			</view>
 			<view class="right">
-				<uni-fav :checked="checked" :circle="true"></uni-fav>
+				<uni-fav :checked="checked" @click="setFavor" :circle="true"></uni-fav>
 			</view>
 		</view>
 		<view class="body">
@@ -29,13 +29,19 @@
 				capo: '',
 				showTitle: false,
 				checked: false,
-				showRetry: false
+				showRetry: false,
+				listItem: null
 			}
 		},
 		components: {
 		},
 		onLoad() {
 			this.load()
+			let url = this.$root.$mp.query.link
+			let favor = getApp().globalData.favor
+			if(favor.find(item=>item.link===url)){
+				this.checked = true
+			}
 		},
 		methods: {
 			load(){
@@ -52,7 +58,7 @@
 				}).then(res => {
 				  let chord = res.result.tab_view.wiki_tab.content
 				  chord = chord.replace(/\[ch\]/g, '<b style="background-color:#a4a4a4;">').replace(/\[\/ch\]/g, '</b>').replace(/\[tab\]/g, '<div>').replace(/\[\/tab\]/g, '</div>')
-				  this.content = '<pre>' + chord + '</pre>'
+				  this.content = '<pre style="white-space:pre-wrap">' + chord + '</pre>'
 				  this.artist = res.result.tab.artist_name
 				  this.song = res.result.tab.song_name
 				  if (res.result.tab_view.meta.capo) {
@@ -60,6 +66,12 @@
 				  }
 				  this.showTitle = true
 				  wx.hideLoading()
+				  this.listItem = {
+					  song: this.song,
+					  artist: this.artist,
+					  link: this.$root.$mp.query.link
+				  }
+				  this.addHistory(this.listItem)
 				}).catch(err=>{
 					wx.hideLoading()
 					this.showRetry = true
@@ -69,6 +81,29 @@
 						duration: 1500
 					})
 				})
+			},
+			addHistory(){
+				let history = getApp().globalData.history
+				let index = history.findIndex(ele=>ele.link===item.link)
+				if(index!==-1){
+					history.splice(index, 1)
+				}else{
+					if(history.length===50){
+						history.pop()
+					}
+				}
+				history.unshift(item)
+			},
+			setFavor(){
+				let favor = getApp().globalData.favor
+				let url = this.$root.$mp.query.link
+				if(this.checked){
+					let index = favor.findIndex(item=>item.link===url)
+					favor.splice(index, 1)
+				}else{
+					favor.unshift(this.listItem)
+				}
+				this.checked = !this.checked
 			}
 		}
 	}
