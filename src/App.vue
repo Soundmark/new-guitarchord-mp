@@ -8,9 +8,26 @@
 		},
 		onHide: function() {
 			console.log('App Hide')
+			this.saveData()
 		},
 		globalData: {
-			userInfo: null
+			userInfo: null,
+			openId: undefined,
+			favor: [],
+			history: []
+		},
+		methods: {
+			saveData(){
+				const db = wx.cloud.database()
+				db.collection('userData').where({
+					_openid: this.globalData.openId
+				}).update({
+					data: {
+						favor: this.globalData.favor,
+						history: this.globalData.history
+					}
+				}).catch(err=>console.log(err))
+			}
 		}
 	}
 </script>

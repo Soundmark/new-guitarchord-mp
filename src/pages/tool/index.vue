@@ -3,14 +3,15 @@
 		<!-- <view class="header">
 		</view> -->
 		<view class="body">
-			<uni-grid :column="2">
+			<uni-grid :column="2" @change="setPopup">
 				<uni-grid-item>
+					<image src="../../static/icon/metronome-select.png"></image>
 					<text>节拍器</text>
 				</uni-grid-item>
 			</uni-grid>
 		</view>
 		<view class="popup">
-			<metronome></metronome>
+			<metronome v-if="show==='metronome'" @close="closePopup"></metronome>
 		</view>
 	</view>
 </template>
@@ -20,7 +21,7 @@
 	export default {
 		data() {
 			return {
-				showList: false,
+				show: '',
 				searchVal: '',
 				currentPage: 1,
 				list: []
@@ -33,41 +34,13 @@
 
 		},
 		methods: {
-			search(){
-				this.showList = true
-				wx.showLoading({
-					title: '加载中'
-				})
-				wx.cloud.callFunction({
-					name: 'getList',
-					data: {
-					  search: this.searchVal.value,
-					  currentPage: this.currentPage
-					}
-				}).then(res => {
-					let dataList = res.result.results.filter(item => item.artist_id)
-					// console.log(dataList)
-					dataList.forEach(item => {
-					  let data = {}
-					  data.song = item.song_name
-					  data.artist = item.artist_name
-					  data.link = item.tab_url
-					  data.hot = item.votes
-					  this.list.push(data)
-					})
-					wx.hideLoading()
-				}).catch(err => {
-					wx.hideLoading()
-					wx.showToast({
-					  title: '服务器出错，请重试!',
-					  icon: 'none',
-					  duration: 1500
-					})
-				})
+			setPopup({detail}){
+				if(detail.index===0){
+				this.show = 'metronome'
+				}
 			},
-			cancelSearch(){
-				this.showList = false
-				this.list = []
+			closePopup(){
+				this.show = ''
 			}
 		}
 	}
@@ -80,5 +53,20 @@
 	height: 50%;
 	transform: translate(-50%,-50%);
 	z-index: 10;
+}
+.body{
+	image{
+		width: 200rpx;
+		height: 200rpx;
+		position: relative;
+		left: 50%;
+		top: 45%;
+		transform: translate(-50%, -50%);
+	}
+	text{
+		position: relative;
+		text-align: center;
+		top: 20%;
+	}
 }
 </style>
