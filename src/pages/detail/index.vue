@@ -82,7 +82,7 @@
 					})
 				})
 			},
-			addHistory(){
+			addHistory(item){
 				let history = getApp().globalData.history
 				let index = history.findIndex(ele=>ele.link===item.link)
 				if(index!==-1){

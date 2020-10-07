@@ -118,8 +118,6 @@
 				}).get({
 					success: function(res){
 						if(!res.data[0]){
-							getApp().globalData.favor = []
-							getApp().globalData.history = []
 							db.collection('userData').add({
 								data: {
 									favor: [],
