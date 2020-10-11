@@ -1,54 +1,60 @@
 <template>
 	<view class="content">
 		<view class="header">
-			<uni-nav-bar class="search">
+			<uni-nav-bar class="search" :fixed="true">
 				<view>
 					<uni-search-bar placeholder="搜索歌手或歌曲名" radius="50"
 					cancelButton="auto" @confirm="search" v-model="searchVal"
 					@cancel="cancelSearch"></uni-search-bar>
 				</view>
-				<!-- <view slot="left" @click="cancelSearch">取消</view> -->
 				<view slot="right" class="right">
 					<button type="default" @click="search">搜索</button>
 				</view>
 			</uni-nav-bar>
 		</view>
 		<view class="body" v-if="showList">
-			<uni-list>
-				<uni-list-item v-for="(item,index) in list" :key="index" :title="item.				song" :note="'歌手:'+item.artist+'   热度:'+item.hot" 
-				 ellipsis="0" link :to="'/pages/detail/index?link='+item.link"></uni-list-item>
-			</uni-list>
+			<list-component :list="list" :showHot="true"
+			:current="currentPage" :total="total" :pageSize="1" @changePage="changeListPage"></list-component>
 		</view>
 		<view class="body" v-else>
-			<!-- <uni-segmented-control :current="current" :value="items" @clickItem="onClickItem"></uni-segmented-control> -->
 			<uni-card class="en" title="热门推荐">
-				<uni-list>
-					<uni-list-item v-for="(item,index) in recomendList" :key="index" :title="item.song_name" :note="'歌手:'+item.artist_name" :to="'/pages/detail/index?link='+item.tab_url"></uni-list-item>
-				</uni-list>
+				<list-component :list="recomendList" @changePage="changePage"
+				:current="recomendCurrentPage" :total="100" :pageSize="10"></list-component>
 			</uni-card>
 		</view>
 	</view>
 </template>
 
 <script>
+	import listComponent from '../../components/list-component/index.vue'
 	export default {
 		data() {
 			return {
 				showList: false,
 				searchVal: '',
 				currentPage: 1,
+				total: 1,
+				recomendCurrentPage: 1,
 				list: [],
-				recomendList: []
+				recomendList: null,
+				recomendSource: null
 			}
 		},
 		components: {
+			listComponent
 		},
 		onLoad() {
 			const db = wx.cloud.database()
 			const recomend = db.collection('recomend').doc('7fbac6cf5f2d75c30002643256074b6d')
 			const that = this
 			recomend.get().then(res=>{
-				this.recomendList = res.data.contentList.splice(0,10)
+				this.recomendSource = res.data.contentList
+				this.recomendSource.forEach(item=>{
+					item.song = item.song_name
+					item.artist = item.artist_name
+					item.link = item.tab_url
+				})
+				this.recomendList = this.recomendSource.slice(0,10)
 				wx.cloud.callFunction({
 					name: 'getRecomend'
 				}).then(res => {})
@@ -88,7 +94,8 @@
 					}
 				}).then(res => {
 					let dataList = res.result.results.filter(item => item.artist_id)
-					// console.log(dataList)
+					console.log(res.result)
+					this.total = res.result.pagination.total
 					dataList.forEach(item => {
 					  let data = {}
 					  data.song = item.song_name
@@ -101,7 +108,7 @@
 				}).catch(err => {
 					wx.hideLoading()
 					wx.showToast({
-					  title: '服务器出错，请重试!',
+					  title: '服务器出错，请点击搜索进行重试!',
 					  icon: 'none',
 					  duration: 1500
 					})
@@ -130,6 +137,17 @@
 						}
 					}
 				})
+			},
+			changePage(e){
+				// console.log(e)
+				this.recomendCurrentPage = e.current
+				let current = (this.recomendCurrentPage-1)*10
+				this.recomendList = this.recomendSource.slice(current, current+10)
+			},
+			changeListPage(e){
+				this.currentPage = e.current
+				this.list = []
+				this.search()
 			}
 		}
 	}

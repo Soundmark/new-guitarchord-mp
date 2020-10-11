@@ -1,28 +1,42 @@
 <template>
 	<view class="list">
-		<uni-list>
-			<uni-list-item v-for="(item, index) in list" :key="index" :title="item.song" :note="'歌手:'+item.artist" :to="'/pages/detail/index?link='+item.link"></uni-list-item>
-		</uni-list>
+		<list-component :current="current" :total="total" :pageSize="30" :list="list" @changePage="changePage"></list-component>
 	</view>
 </template>
 
 <script>
+	import listComponent from '../../components/list-component/index.vue'
 	export default {
 		data(){
 			return {
-				list : null
+				list : [],
+				current: 1,
+				total: 0
 			}
 		},
 		onLoad() {
 			this.getList()
 		},
+		components: {
+			listComponent
+		},
 		methods: {
 			getList(){
+				let current = (this.current-1)*30
 				if(this.$root.$mp.query.type==='favor'){
-					this.list = getApp().globalData.favor
+					if(!this.total){
+						this.total = getApp().globalData.favor.length
+					}
+					this.list = getApp().globalData.favor.slice(current, current+30)
 				}else if(this.$root.$mp.query.type==='history'){
-					this.list = getApp().globalData.history
+					if(!this.total){
+						this.total = getApp().globalData.history.length
+					}
+					this.list = getApp().globalData.history.slice(current, current+30)
 				}
+			},
+			changePage(e){
+				this.current = e.current
 			}
 		}
 	}
