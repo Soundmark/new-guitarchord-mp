@@ -1,12 +1,19 @@
-let timer = null
-
-export function createInterval(fn, wait){
-	timer = setTimeout(()=>{
-		fn()
-		createInterval(fn, wait)
-	}, wait)
-}
-
-export function cancelInterval(){
-	clearTimeout(timer)
+export default class Timer{
+	constructor(){
+		this.timer = null
+	}
+	
+	createInterval(fn, wait){
+		if(!this.timer){
+			fn()
+		}
+		this.timer = setTimeout(()=>{
+			this.createInterval(fn, wait)
+			fn()
+		}, wait)
+	}
+	
+	cancelInterval(){
+		clearTimeout(this.timer)
+	}
 }
