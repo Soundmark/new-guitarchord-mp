@@ -27,7 +27,16 @@
 				openId: ''
 			}
 		},
-		components: {
+		onShareAppMessage(res) {
+			return {
+				title: 'TXT吉他谱搜索器',
+				path: '/pages/index/index'
+			}
+		},
+		onShareTimeline() {
+			return {
+				title: 'TXT吉他谱搜索器',
+			}
 		},
 		onLoad() {
 			this.userInfo = getApp().globalData.userInfo

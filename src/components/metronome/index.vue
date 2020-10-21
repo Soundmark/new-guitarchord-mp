@@ -10,7 +10,7 @@
 				</view>
 				<view class="control">
 					<button class="decrease" @click="decrease" @touchstart="setBpm('decrease')" @touchend="endSetBpm" @touchmove="endSetBpm">-</button>
-					<canvas canvas-id="controller" id="controller" @touchmove="handleCanvasTouchMove" @touchstart="handleCanvasTouchStart" @touchend="handleCanvasTouchEnd"></canvas>
+					<canvas type="2d" canvas-id="controller" id="controller" @touchmove="handleCanvasTouchMove" @touchstart="handleCanvasTouchStart" @touchend="handleCanvasTouchEnd"></canvas>
 					<button class="add" @click="add" @touchstart="setBpm('add')" @touchend="endSetBpm" @touchmove="endSetBpm">+</button>
 				</view>
 			</view>
@@ -70,7 +70,8 @@
 				touchPeriod: {
 					start: 0,
 					end: 0
-				}
+				},
+				throttleFunc: null
 			}
 		},
 		computed: {
@@ -98,7 +99,7 @@
 		},
 		watch: {
 			timeout: function() {
-				console.log('timeout changed')
+				// console.log('timeout changed')
 				let that = this
 				setTimeout(() => {
 					if (that.playBtn === '停止') {
@@ -141,14 +142,23 @@
 		},
 		mounted() {
 			wx.showShareMenu()
-			this.ctx = uni.createCanvasContext('controller', this)
+			// this.ctx = uni.createCanvasContext('controller', this)
 			this.$nextTick(() => {
-				let query = uni.createSelectorQuery().in(this)
+				let query = wx.createSelectorQuery().in(this)
 				query.select('#controller').boundingClientRect(data => {
 					this.rect = data
 					this.slidePos.x2 = -data.width
-					this.renderCanvas()
 				}).exec()
+				query.select('#controller').fields({node:true, size:true}).exec(res=>{
+					const canvas = res[1].node
+					this.ctx = canvas.getContext('2d')
+					const dpr = wx.getSystemInfoSync().pixelRatio
+					console.log(res)
+					canvas.width = res[1].width*dpr
+					canvas.height = res[1].height*dpr
+					this.ctx.scale(dpr, dpr)
+					this.renderCanvas()
+				})
 			})
 			this.audioContext = wx.createInnerAudioContext()
 		},
@@ -277,11 +287,11 @@
 				let ctx = this.ctx
 				let canvasWidth = this.rect.width, piece = canvasWidth/10, canvasHeight = this.rect.height
 				let x1=this.slidePos.x1, x2=this.slidePos.x2, y=0, width=piece, height=canvasHeight
+				ctx.clearRect(0, 0, canvasWidth, canvasHeight)
 				for(let i=0;i<10;i++){
 					ctx.strokeRect(x1+i*piece, y, width, height)
 					ctx.strokeRect(x2+i*piece, y, width, height)
 				}
-				ctx.draw()
 				let del = Math.floor(deltaX)
 				this.slidePos.x1 = this.limitPos(x1+del, canvasWidth)
 				this.slidePos.x2 = this.limitPos(x2+del, canvasWidth)
@@ -304,17 +314,25 @@
 				this.touchPeriod.start = Date.now()
 			},
 			handleCanvasTouchMove(e){
+				if(!this.touchPos1) return
+				if(e.touches[0].x>this.rect.width || e.touches[0].x<0){
+					this.touchPos1 = null
+					return
+				}
 				let deltaX = e.touches[0].x - this.touchPos1.x
 				this.renderCanvas(deltaX)
 				this.touchPos1 = e.touches[0]
-				throttle(()=>{
-					console.log(123)
-					if(deltaX>0){
-						this.bpm+=1
-					}else{
-						this.bpm-=1
-					}
-				}, 100)()
+				if(!this.throttleFunc){
+					this.throttleFunc = throttle((deltaX)=>{
+						if(deltaX>0){
+							this.bpm = Math.min(this.bpm+1, 240)
+						}else{
+							this.bpm = Math.max(this.bpm-1, 20)
+						}
+					}, 50)
+				}else{
+					this.throttleFunc(deltaX)
+				}
 			},
 			handleCanvasTouchEnd(e){
 				let period = Date.now() - this.touchPeriod.start
@@ -328,6 +346,17 @@
 						}
 						let deltaX = delta/30
 						this.renderCanvas(deltaX)
+						if(!this.throttleFunc){
+							this.throttleFunc = throttle((deltaX)=>{
+								if(deltaX>0){
+									this.bpm = Math.min(this.bpm+1, 240)
+								}else{
+									this.bpm = Math.max(this.bpm-1, 20)
+								}
+							}, 32)
+						}else{
+							this.throttleFunc(deltaX)
+						}				
 						renderCount-=1
 					}, 16.7)
 				}

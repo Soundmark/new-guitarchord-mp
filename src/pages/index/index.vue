@@ -43,6 +43,18 @@
 		components: {
 			listComponent
 		},
+		onShareAppMessage(res) {
+			uni.showShareMenu()
+			return {
+				title: 'TXT吉他谱搜索器',
+				path: '/pages/index/index'
+			}
+		},
+		onShareTimeline() {
+			return {
+				title: 'TXT吉他谱搜索器',
+			}
+		},
 		onLoad() {
 			const db = wx.cloud.database()
 			const recomend = db.collection('recomend').doc('7fbac6cf5f2d75c30002643256074b6d')

@@ -30,8 +30,16 @@
 		components: {
 			metronome
 		},
-		onLoad() {
-
+		onShareAppMessage(res) {
+			return {
+				title: 'TXT吉他谱搜索器',
+				path: '/pages/index/index'
+			}
+		},
+		onShareTimeline() {
+			return {
+				title: 'TXT吉他谱搜索器',
+			}
 		},
 		methods: {
 			setPopup({detail}){
@@ -50,7 +58,7 @@
 .popup{
 	position: absolute;
 	left: 50%;
-	height: 50%;
+	top: 50%;
 	transform: translate(-50%,-50%);
 	z-index: 10;
 }

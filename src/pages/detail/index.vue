@@ -33,7 +33,16 @@
 				listItem: null
 			}
 		},
-		components: {
+		onShareAppMessage(res) {
+			return {
+				title: '吉他谱:'+this.song+'  歌手:'+this.artist,
+				path: '/pages/detail/index'
+			}
+		},
+		onShareTimeline() {
+			return {
+				title: 'TXT吉他谱搜索器',
+			}
 		},
 		onLoad() {
 			this.load()

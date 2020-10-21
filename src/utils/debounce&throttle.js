@@ -13,11 +13,11 @@ function debounce(fn, wait){
 function throttle(fn, wait) {
   let timer = null
   // fn()
-  return function(){
+  return function(...args){
     if(timer) return
     timer = setTimeout(() => {
       timer = null
-      fn()
+      fn(args)
     }, wait);
   }
 }
