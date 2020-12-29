@@ -8,16 +8,22 @@
 					<image src="../../static/icon/metronome-select.png"></image>
 					<text>节拍器</text>
 				</uni-grid-item>
+				<uni-grid-item>
+					<image src="../../static/icon/metronome-select.png"></image>
+					<text>chord library</text>
+				</uni-grid-item>
 			</uni-grid>
 		</view>
 		<view class="popup">
 			<metronome v-if="show==='metronome'" @close="closePopup"></metronome>
+			<library v-if="show==='library'"></library>
 		</view>
 	</view>
 </template>
 
 <script>
 	import metronome from '../../components/metronome/index.vue'
+	import library from '../../components/library/index.vue'
 	export default {
 		data() {
 			return {
@@ -28,7 +34,8 @@
 			}
 		},
 		components: {
-			metronome
+			metronome,
+			library,
 		},
 		onShareAppMessage(res) {
 			return {
@@ -43,8 +50,11 @@
 		},
 		methods: {
 			setPopup({detail}){
+				console.log(detail)
 				if(detail.index===0){
-				this.show = 'metronome'
+					this.show = 'metronome'
+				}else if(detail.index===1){
+					this.show = 'library'
 				}
 			},
 			closePopup(){
